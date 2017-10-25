@@ -1,2 +1,49 @@
 # iTerm-Split-Automator
 Automate the running of commands in split iTerm sessions
+
+## Installation
+Place `Launch.scpt` in the directory `~/Library/Application Support/iTerm/Scripts` (create it if it doesn't exist).
+Restart iTerm, and the script will now show up under `Scripts` in the toolbar.
+
+## Configuration
+Configuration files are split into three sections:
+```
+LAYOUT
+--
+VARIABLES
+--
+COMMANDS
+```
+
+The following configuration file:
+```cfg
+term_A B
+C D terminal_E
+F
+--
+THINGS
+&this will be prompted for
+$this will be prompted for with hidden characters
+--
+* clear # Clear all terminals
+term_A ls # Execute 'ls' in terminal (1,1)
+B echo "Write me to a file" > test_file # Execute in terminal (1,2)
+!1 # Pause for 1 second
+* cat test_file # Execute in all terminals
+!2 # Pause for 2 seoncds
+F echo $1 # Echo the first variable
+D echo $2 # Echo the variable that was prompted for
+terminal_E echo $3 # Echo the variable that was password-prompted
+```
+
+Creates the following terminal:
+![iTerm image](https://user-images.githubusercontent.com/3009842/32004573-162f81f8-b970-11e7-981a-b22883a3db95.png "Image of split iTerm window")
+
+## Configuration quirks
+* The first item in a COMMAND line must be the session the command should be sent to or `*` to send to all
+* Any line that starts with `!` pauses for the number of seconds that follow the `!`
+* The N'th defined variable can be referenced throughout commands as $N
+* Variables that start with a `&` are prompted for on each run of the script
+* Variables that start with a `$` are the same, but show up in a password prompt
+* `#` is a comment
+* There is no guarantee of ordering of commands unless you place a pause between them
