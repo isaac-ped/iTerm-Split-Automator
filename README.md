@@ -34,10 +34,14 @@ B echo "Write me to a file" > test_file # Execute in terminal (1,2)
 F echo $1 # Echo the first variable
 D echo $2 # Echo the variable that was prompted for
 terminal_E echo $3 # Echo the variable that was password-prompted
+term_A ls
+!3 # Pause for 3 seconds
+* exit # Close all windows
 ```
 
 Creates the following terminal:
-![iTerm image](https://user-images.githubusercontent.com/3009842/32004573-162f81f8-b970-11e7-981a-b22883a3db95.png "Image of split iTerm window")
+
+<img src='sample.gif' width=640 align="middle"/>
 
 ## Configuration quirks
 * The first item in a COMMAND line must be the session the command should be sent to or `*` to send to all
