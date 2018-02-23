@@ -47,6 +47,8 @@ tell application "iTerm2"
 # Commands to be sent to the panels
     set cmds to {}
 
+    set profile_name to ""
+
 # Read in the configuration file
     set mode to  "LAYOUT"
     repeat with cfg_line in cfg_list
@@ -58,8 +60,12 @@ tell application "iTerm2"
             end if
         else
             if mode is "LAYOUT"
-                set split_layout to every word of cfg_line
-                copy split_layout to end of layout
+                if (text item 1 of (cfg_line as string)) is equal to "^"
+                    set profile_name to (text 2 thru end of cfg_line as string)
+                else
+                    set split_layout to every word of cfg_line
+                    copy split_layout to end of layout
+                end
             end if
             if mode is "VARS"
 # If the variable starts with '$', show a password prompt
@@ -86,11 +92,16 @@ tell application "iTerm2"
 # NxM list of created panels
     set sessions_ to {}
 
-    create window with default profile
-    set bounds of front window to {300, 30, 1200, 900}
+    if profile_name is equal to ""
+        create window with default profile
+    else
+        create window with profile profile_name
+    end
+    set bounds of front window to {300, 30, 1200, 600}
 # Get the name of a default session
     set default_name to ((name of session 1 of current tab of current window) as string)
 
+    set names_so_far to {}
 # Create one split in each row
     set r_i to 1
     set sessions_created to 1
@@ -107,6 +118,10 @@ tell application "iTerm2"
             select
             set name to item 1 of row
         end tell
+        delay .2
+        tell curr_ses
+            copy name to end of names_so_far
+        end
         set r_i to r_i + 1
         set sessions_created to sessions_created + 1
     end repeat
@@ -120,6 +135,10 @@ tell application "iTerm2"
             tell curr_ses
                 set name to item c_i of (item r_i of layout)
             end tell
+            delay .2
+            tell curr_ses
+                copy name to end of names_so_far
+            end tell
             if c_i does not equal count of row_
                 tell curr_ses
                     split vertically with same profile
@@ -129,7 +148,7 @@ tell application "iTerm2"
                 repeat while next_ses = 0
                     repeat with j from 1 to sessions_created
                         set sess to session j of current tab of current window
-                        if (name of sess as string) equals default_name
+                        if not (names_so_far contains (name of sess as string))
                             set next_ses to sess
                         end
                     end
@@ -141,10 +160,11 @@ tell application "iTerm2"
         end
         set r_i to r_i + 1
     end
-
+    delay .1
     set total to sessions_created - 1
 
     repeat with cmd in cmds
+        delay .1
         set name_ to item 1 of cmd
         set sess to 0
         if (text item 1 of name_) equals "!"
