@@ -45,6 +45,8 @@ Creates the following terminal:
 
 ## Configuration quirks
 * The first item in a COMMAND line must be the session the command should be sent to or `*` to send to all
+* If a command starts with `*<N>`, it will pause for `<N>` seconds between each execution
+  * (e.g. `*.25 ssh myserver` will execute `ssh myserver` on all machines, spaced apart by .25 seconds
 * Any line that starts with `!` pauses for the number of seconds that follow the `!`
 * The N'th defined variable can be referenced throughout commands as $N
 * Variables that start with a `&` are prompted for on each run of the script
