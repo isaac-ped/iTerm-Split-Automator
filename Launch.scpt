@@ -5,12 +5,12 @@
 # --
 # THINGS
 # &this will be prompted for
-# $this will be password-prompted forn
+# $this will be password-prompted for
 # --
 # term_A echo "Hello!"
 # B echo "Goodbye!"
 # !1    # Pause for 1 second
-# * echo "What's up"
+# *.25 echo "What's up" # Executed on all terminals with a .25 second delay
 # !2    # Pause for 2 seconds
 # F echo $1
 # D echo $2
@@ -49,6 +49,8 @@ tell application "iTerm2"
 
     set profile_name to ""
 
+    set bounds_ to {300, 20, 1200, 600}
+
 # Read in the configuration file
     set mode to  "LAYOUT"
     repeat with cfg_line in cfg_list
@@ -60,7 +62,14 @@ tell application "iTerm2"
             end if
         else
             if mode is "LAYOUT"
-                if (text item 1 of (cfg_line as string)) is equal to "^"
+                if (text item 1 of (cfg_line as string)) is equal to "#"
+                    set str_bounds_ to (every word of (text 2 thru end of cfg_line))
+                    set bounds_i to 1
+                    repeat with bound in str_bounds_
+                        set item (bounds_i) of bounds_ to (item bounds_i of str_bounds_ as integer)
+                        set bounds_i to bounds_i + 1
+                    end
+                else if (text item 1 of (cfg_line as string)) is equal to "^"
                     set profile_name to (text 2 thru end of cfg_line as string)
                 else
                     set split_layout to every word of cfg_line
@@ -97,7 +106,7 @@ tell application "iTerm2"
     else
         create window with profile profile_name
     end
-    set bounds of front window to {300, 30, 1200, 600}
+    set bounds of front window to bounds_
 # Get the name of a default session
     set default_name to ((name of session 1 of current tab of current window) as string)
 
@@ -170,7 +179,7 @@ tell application "iTerm2"
         if (text item 1 of name_) equals "!"
             delay (text item 2 of name_ as integer)
         else
-            if name_ does not equal "*"
+            if (text item 1 of name_) does not equal "*"
                 set sess to my getSess(sessions_, layout, name_)
                 if sess = 0
                     display dialog("ERROR, cannot find session with appropriate name " & name_)
@@ -192,14 +201,21 @@ tell application "iTerm2"
                     set text_cmd to text_cmd & " "
                 end if
             end repeat
-            if name_ does not equal "*"
+            if (text item 1 of name_) does not equal "*"
                 tell sess
                     write text text_cmd
                 end tell
             else
+                set namelen to the length of name_
+                if (namelen is 1)
+                    set delaytime to 0
+                else
+                    set delaytime to ((text 2 thru namelen of name_) as real)
+                end
                 repeat with i from 1 to total
                     tell session i of current tab of current window
                        write text text_cmd
+                       delay (delaytime)
                     end tell
                 end repeat
             end if

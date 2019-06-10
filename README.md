@@ -29,7 +29,7 @@ $this will be prompted for with hidden characters
 term_A ls # Execute 'ls' in terminal (1,1)
 B echo "Write me to a file" > test_file # Execute in terminal (1,2)
 !1 # Pause for 1 second
-* cat test_file # Execute in all terminals
+*.25 cat test_file # Execute in all terminals with .25 seconds between execution
 !2 # Pause for 2 seoncds
 F echo $1 # Echo the first variable
 D echo $2 # Echo the variable that was prompted for
