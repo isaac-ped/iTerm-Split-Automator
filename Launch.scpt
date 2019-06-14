@@ -33,7 +33,7 @@ end
 
 tell application "iTerm2"
 
-    set my_path to POSIX path of ((path to me as text) & "::") 
+    set my_path to POSIX path of ((path to me as text) & "::")
 
     set f to (choose file of type "cfg" default location POSIX file my_path)
 
@@ -177,7 +177,7 @@ tell application "iTerm2"
         set name_ to item 1 of cmd
         set sess to 0
         if (text item 1 of name_) equals "!"
-            delay (text item 2 of name_ as integer)
+            delay ((text item 2 thru end of name_ as string) as integer)
         else
             if (text item 1 of name_) does not equal "*"
                 set sess to my getSess(sessions_, layout, name_)
