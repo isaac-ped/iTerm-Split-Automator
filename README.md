@@ -68,6 +68,11 @@ commands:
 
     - panes: D
       cmd: 'echo {to_echo} : {my_prompt}, {my_password}'
+
+    - sleep: 2
+
+    - panes: .*
+      cmd: ls
 ```
 Creates the following terminal:
 
