@@ -44,13 +44,9 @@ layout: |
     last_row
 
 commands:
-    # Clear all terminals
+    # Clear all terminals and change to test_dir/
     - panes: .*
-      cmd: clear
-
-    # Change to test_dir/
-    - panes: .*
-      cmd: cd test_dir
+      cmd: clear && cd test_dir/
 
     - sleep: 1
 
@@ -63,16 +59,12 @@ commands:
       cmd: echo "{name} Wrote me to a file" >> test_file
       sleep: 1
 
-    - panes: last_row
+    - panes: D
       cmd: cat test_file
 
-    - panes: D
+    # Echo the variables defined above
+    - panes: last_row
       cmd: 'echo {to_echo} : {my_prompt}, {my_password}'
-
-    - sleep: 2
-
-    - panes: .*
-      cmd: ls
 ```
 Creates the following terminal:
 
