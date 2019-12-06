@@ -2,54 +2,73 @@
 Automate the running of commands in split iTerm sessions
 
 ## Installation
-Place `Launch.scpt` in the directory `~/Library/Application Support/iTerm/Scripts` (create it if it doesn't exist).
-Restart iTerm, and the script will now show up under `Scripts` in the toolbar.
+From the iTerm2 menu, click:
+`Scripts->Manage->Import...` then navigate to the launcher.zip file
 
 ## Configuration
-Configuration files are split into three sections:
+The configuration yaml file must define two entries:
+
+```yaml
+layout: |
+    space_separated names of
+    split_panes
+
+commands:
+    - panes: <regex_matching_pane_names>
+      cmd: cmd to run 1
+
+    - panes: <regex_matching_pane_names>
+      cmd: cmd to run 2
 ```
-LAYOUT
---
-VARIABLES
---
-COMMANDS
-```
+
+In addition, layouts may define an additional `variables` section, which
+contains elements which will later be substituted into commands with pythons
+`.format()` method.
+
+Variables that begin with `!password` prompt the user for a password on each run.
+
+Variables that begin with `!prompt` prompt the user for plain-text input on each run.
+
+
 
 The following configuration file:
-```cfg
-term_A B
-C D terminal_E
-F
---
-THINGS
-&this will be prompted for
-$this will be prompted for with hidden characters
---
-* clear # Clear all terminals
-term_A ls # Execute 'ls' in terminal (1,1)
-B echo "Write me to a file" > test_file # Execute in terminal (1,2)
-!1 # Pause for 1 second
-*.25 cat test_file # Execute in all terminals with .25 seconds between execution
-!2 # Pause for 2 seoncds
-F echo $1 # Echo the first variable
-D echo $2 # Echo the variable that was prompted for
-terminal_E echo $3 # Echo the variable that was password-prompted
-term_A ls
-!3 # Pause for 3 seconds
-* exit # Close all windows
-```
+```yaml
+variables:
+    to_echo: "things to echo"
+    my_password: !password enter password
+    my_prompt: !prompt enter prompt
 
+layout: |
+    row1_A row1_B
+    CC D EEE
+    last_row
+
+commands:
+    # Clear all terminals
+    - panes: .*
+      cmd: clear
+
+    # Change to test_dir/
+    - panes: .*
+      cmd: cd test_dir
+
+    - sleep: 1
+
+    # Top row executes `ls`
+    - panes: row1_.*
+      cmd: ls
+
+    # Write to file from two panes, separated by 1 second
+    - panes: (CC)|(EEE)
+      cmd: echo "{name} Wrote me to a file" >> test_file
+      sleep: 1
+
+    - panes: last_row
+      cmd: cat test_file
+
+    - panes: D
+      cmd: 'echo {to_echo} : {my_prompt}, {my_password}'
+```
 Creates the following terminal:
 
 <img src='sample.gif' width=640 align="middle"/>
-
-## Configuration quirks
-* The first item in a COMMAND line must be the session the command should be sent to or `*` to send to all
-* If a command starts with `*<N>`, it will pause for `<N>` seconds between each execution
-  * (e.g. `*.25 ssh myserver` will execute `ssh myserver` on all machines, spaced apart by .25 seconds
-* Any line that starts with `!` pauses for the number of seconds that follow the `!`
-* The N'th defined variable can be referenced throughout commands as $N
-* Variables that start with a `&` are prompted for on each run of the script
-* Variables that start with a `$` are the same, but show up in a password prompt
-* `#` is a comment
-* There is no guarantee of ordering of commands unless you place a pause between them
