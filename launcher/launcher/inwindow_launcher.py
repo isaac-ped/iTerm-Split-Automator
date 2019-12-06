@@ -59,8 +59,8 @@ def cli_dialog():
             id = int(id)
             return recents[id - 1]
         except ValueError as e:
-            if os.path.exists(os.path.expanduser(id)):
-                return os.path.expanduser(id)
+            if os.path.exists(os.path.expanduser(id.strip())):
+                return os.path.expanduser(id.strip())
 
 async def createRow(orig, names):
     splits = {}
